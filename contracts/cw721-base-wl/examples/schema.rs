@@ -8,7 +8,7 @@ use cw721::{
     AllNftInfoResponse, ApprovalResponse, ApprovalsResponse, ContractInfoResponse, NftInfoResponse,
     NumTokensResponse, OperatorsResponse, OwnerOfResponse, TokensResponse,
 };
-use cw721_base::{ExecuteMsg, Extension, InstantiateMsg, MinterResponse, QueryMsg};
+use cw721_base_wl::{ExecuteMsg, Extension, InstantiateMsg, MinterResponse, QueryMsg};
 
 fn main() {
     let mut out_dir = current_dir().unwrap();

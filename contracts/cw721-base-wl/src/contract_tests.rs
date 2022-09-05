@@ -1,6 +1,8 @@
 #![cfg(test)]
+use std::vec;
+
 use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-use cosmwasm_std::{from_binary, to_binary, CosmosMsg, DepsMut, Empty, Response, WasmMsg};
+use cosmwasm_std::{from_binary, to_binary, CosmosMsg, DepsMut, Empty, Response, WasmMsg, Addr};
 
 use cw721::{
     Approval, ApprovalResponse, ContractInfoResponse, Cw721Query, Cw721ReceiveMsg, Expiration,
@@ -21,6 +23,14 @@ fn setup_contract(deps: DepsMut<'_>) -> Cw721Contract<'static, Extension, Empty,
         name: CONTRACT_NAME.to_string(),
         symbol: SYMBOL.to_string(),
         minter: String::from(MINTER),
+        whitelist: vec![
+            Addr::unchecked("medusa"),
+            Addr::unchecked("demeter"),
+            Addr::unchecked("person"),
+            Addr::unchecked("venus"),
+            Addr::unchecked("hercules"),
+            Addr::unchecked("ceres"),
+            ],
     };
     let info = mock_info("creator", &[]);
     let res = contract.instantiate(deps, mock_env(), info, msg).unwrap();
@@ -37,6 +47,7 @@ fn proper_instantiation() {
         name: CONTRACT_NAME.to_string(),
         symbol: SYMBOL.to_string(),
         minter: String::from(MINTER),
+        whitelist: vec![],
     };
     let info = mock_info("creator", &[]);
 
@@ -135,9 +146,22 @@ fn minting() {
 
     let allowed = mock_info(MINTER, &[]);
     let err = contract
-        .execute(deps.as_mut(), mock_env(), allowed, mint_msg2)
+        .execute(deps.as_mut(), mock_env(), allowed.clone(), mint_msg2)
         .unwrap_err();
     assert_eq!(err, ContractError::Claimed {});
+
+    // some_guy is not whitelisted.
+    let mint_msg3 = ExecuteMsg::Mint(MintMsg::<Extension> {
+        token_id: "petrify2".to_string(),
+        owner: String::from("some_guy"),
+        token_uri: None,
+        extension: None,
+    });
+    
+    let err = contract
+        .execute(deps.as_mut(), mock_env(), allowed, mint_msg3)
+        .unwrap_err();
+    assert_eq!(err, ContractError::NotWhitelisted {});
 
     // list the token_ids
     let tokens = contract.all_tokens(deps.as_ref(), None, None).unwrap();

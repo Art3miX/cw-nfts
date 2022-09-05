@@ -37,6 +37,9 @@ where
         self.contract_info.save(deps.storage, &info)?;
         let minter = deps.api.addr_validate(&msg.minter)?;
         self.minter.save(deps.storage, &minter)?;
+
+        self.whitelist.save(deps.storage, &msg.whitelist)?;
+
         Ok(Response::default())
     }
 
@@ -92,14 +95,20 @@ where
         msg: MintMsg<T>,
     ) -> Result<Response<C>, ContractError> {
         let minter = self.minter.load(deps.storage)?;
+        let whitelist = self.whitelist.load(deps.storage)?;
+        let owner = deps.api.addr_validate(&msg.owner)?;
 
         if info.sender != minter {
             return Err(ContractError::Unauthorized {});
+        } 
+        
+        if minter != owner && whitelist.len() > 0 && !whitelist.contains(&owner) {
+            return Err(ContractError::NotWhitelisted {});
         }
 
         // create the token
         let token = TokenInfo {
-            owner: deps.api.addr_validate(&msg.owner)?,
+            owner,
             approvals: vec![],
             token_uri: msg.token_uri,
             extension: msg.extension,

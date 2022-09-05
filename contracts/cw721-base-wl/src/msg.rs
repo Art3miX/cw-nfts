@@ -1,7 +1,7 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use cosmwasm_std::Binary;
+use cosmwasm_std::{Binary, Addr};
 use cw721::Expiration;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -15,6 +15,7 @@ pub struct InstantiateMsg {
     /// This is designed for a base NFT that is controlled by an external program
     /// or contract. You will likely replace this with custom logic in custom NFTs
     pub minter: String,
+    pub whitelist: Vec<Addr>,
 }
 
 /// This is like Cw721ExecuteMsg but we add a Mint command for an owner

@@ -20,6 +20,7 @@ where
     /// Stored as (granter, operator) giving operator full control over granter's account
     pub operators: Map<'a, (&'a Addr, &'a Addr), Expiration>,
     pub tokens: IndexedMap<'a, &'a str, TokenInfo<T>, TokenIndexes<'a, T>>,
+    pub whitelist: Item<'a, Vec<Addr>>,
 
     pub(crate) _custom_response: PhantomData<C>,
     pub(crate) _custom_query: PhantomData<Q>,
@@ -50,6 +51,7 @@ where
             "operators",
             "tokens",
             "tokens__owner",
+            "whitelist"
         )
     }
 }
@@ -67,6 +69,7 @@ where
         operator_key: &'a str,
         tokens_key: &'a str,
         tokens_owner_key: &'a str,
+        whitelist: &'a str,
     ) -> Self {
         let indexes = TokenIndexes {
             owner: MultiIndex::new(token_owner_idx, tokens_key, tokens_owner_key),
@@ -80,6 +83,7 @@ where
             _custom_response: PhantomData,
             _custom_execute: PhantomData,
             _custom_query: PhantomData,
+            whitelist: Item::new(whitelist),
         }
     }
 

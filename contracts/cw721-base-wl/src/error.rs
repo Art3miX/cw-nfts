@@ -9,6 +9,9 @@ pub enum ContractError {
     #[error("Unauthorized")]
     Unauthorized {},
 
+    #[error("OWner is not whitelisted")]
+    NotWhitelisted {},
+
     #[error("token_id already claimed")]
     Claimed {},
 
